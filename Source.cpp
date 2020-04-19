@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 #include <vector>
 #include <algorithm>
@@ -15,8 +16,8 @@ using namespace cv::ml;
 using namespace cv;
 using namespace std;
 
-//#define STANDARD
-#define SINGLE_TEST
+bool STANDARD = false;
+bool SINGLE_TEST = false;
 
 
 int SZ = 20;
@@ -68,18 +69,40 @@ HOGDescriptor hog(
 
 int main()
 {
+    int choice = 0;
+    cout << "What image (of a digit) do you want to recognize?" << endl;
+    cout << "1. Default (500 images from the dataset which are set aside for testing)\n2. Custom test (one digit only, please!)" << endl;
+    while (choice < 1 or 2 < choice)
+    {
+        cout << "Enter 1 or 2." << endl;
+        cin >> choice;
+    }
+    if (choice == 1)
+        STANDARD = true;
+    else
+        SINGLE_TEST = true;
+
+
 
     string imgPath = "digits.png";
-    Mat image = imread(imgPath, 0);
-#ifdef SINGLE_TEST
-    string singleTestDigitPath = "Single Tests/3456 test.png"; // Color does not matter!
-    Mat singleTestDigit = imread(singleTestDigitPath, 0);
+    Mat image = imread(imgPath, 0), singleTestDigit;
+if (SINGLE_TEST){
+
+    string singleTestDigitPath = "", s = "-";
+    cout << "Enter path to the test digit, with quotes (ex. \"Single Tests/four test.png\"): "; // Color does not matter!
+    while (s.back() != '"')
+    {
+        cin >> s;
+        singleTestDigitPath += s + " ";
+    }
+    singleTestDigitPath.erase(singleTestDigitPath.begin()); singleTestDigitPath.erase(singleTestDigitPath.end() - 2, singleTestDigitPath.end());
+    
+
+    singleTestDigit = imread(singleTestDigitPath, 0);
     int xsSZ = singleTestDigit.cols, ysSZ = singleTestDigit.rows;
     double xScale = (double)SZ / xsSZ, yScale = (double)SZ / ysSZ;
     resize(singleTestDigit, singleTestDigit, Size(), xScale, yScale);
-
-    cout << singleTestDigit.rows << endl;
-#endif
+}
     //namedWindow("Dataset", WINDOW_FREERATIO);
     //imshow("Dataset", image);
 
@@ -101,18 +124,18 @@ int main()
             {
                 trainingDigits.push_back(currData);
             }
-#ifdef STANDARD
             else
             {
-                testDigits.push_back(currData);
+if (STANDARD) {
+                    testDigits.push_back(currData);
+}
             }
-#endif
             dataCount++;
         }
     }
-#ifdef SINGLE_TEST
+if (SINGLE_TEST){
     testDigits.push_back(singleTestDigit);
-#endif
+}
     destroyAllWindows();
     //namedWindow("Data", WINDOW_FREERATIO);
     //cout << "Inputted images" << endl;
@@ -129,7 +152,7 @@ int main()
         }
         trainingLabels.push_back(d);
     }
-#ifdef STANDARD
+if (STANDARD){
     d = 0;
     for (int i = 0; i < (int)((1 - trainPercent) * dataCount); i++)
     {
@@ -139,10 +162,10 @@ int main()
         }
         testLabels.push_back(d);
     }
-#endif
-#ifdef SINGLE_TEST
-    testLabels.push_back(-1);
-#endif
+}
+if (SINGLE_TEST){
+    testLabels.push_back(NULL);
+}
 
     vector<float> descriptors;
     vector<vector<float>> trainingHOG;
@@ -156,24 +179,24 @@ int main()
         trainingHOG.push_back(descriptors);
     }
     vector<vector<float>> testHOG;
-#ifdef STANDARD
+if (STANDARD){
     for (int i = 0; i < testDigits.size(); i++)
     {
         hog.compute(testDigits[i], descriptors, Size(4, 4));
         testHOG.push_back(descriptors);
     }
-#endif
-#ifdef SINGLE_TEST
+}
+if (SINGLE_TEST){
     hog.compute(testDigits[0], descriptors, Size(4, 4));
     testHOG.push_back(descriptors);
-#endif
+}
     Mat trainingMat = HOGToMat(trainingHOG);
     Mat testMat = HOGToMat(testHOG);
 
     /*cout << trainingMat << endl;
     cout << testMat << endl;*/
 
-    cout << "Computed HOGs" << endl;
+    //cout << "Computed HOGs" << endl;
 
     Ptr<SVM> svm = SVM::create(); // Remember: SVM is used to find boundaries of where to classify digits
     svm->setGamma(0.50625); // Value for Kernel
@@ -190,20 +213,32 @@ int main()
     svm->predict(testMat, testResponse); // testMat has HOGS of samples, testResponse will be filled with results
 
     //cout << testResponse << endl;
+    cout << endl << endl << endl;
+    cout << "The image displayed is not the original image, but the deskewed version, and it's too much of a hassle now to go back and change that." << endl;
+    cout << "Response: What my program thinks the digit was    Label: What the digit was (if you chose a custom test, ignore the label, as it is by default 0) " << endl;
+
+    if (STANDARD) cout << "(Tip: Select the window containing the image and press a key to immediately go to the next one.)" << endl;
 
     namedWindow("Test Data", WINDOW_FREERATIO);
+    
     double nCorrect{ 0 }, accuracy;
     for (int i = 0; i < testResponse.rows; i++)
     {
         imshow("Test Data", testDigits[i]);
-        cout << "Response: " << testResponse.at<float>(i, 0) << " Label:" << testLabels[i] << endl;
+        cout << "Response: " << testResponse.at<float>(i, 0) << " Label: " << testLabels[i] << endl;
         nCorrect += testResponse.at<float>(i, 0) == testLabels[i];
-        waitKey();
+        waitKey(2000);
     }
     accuracy = 100 * nCorrect / testLabels.size();
-    this_thread::sleep_for(2s); // Don't exit console immediately!
+    this_thread::sleep_for(1s); // Don't exit console immediately!
 
+if (STANDARD){
     cout << "Accuracy: " << accuracy << "%" << endl;
+}
+if (SINGLE_TEST){
+    cout << "Accuracy: ?? %    See for yourself; was it correct? :)" << endl;
+}
+
 
     return 0;
 }
