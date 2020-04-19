@@ -1,5 +1,5 @@
 # ROPEs-Project-2020
-First time using AI.
+First time using AI/machine learning.
 
 Source.cpp is the main program.
 
