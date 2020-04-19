@@ -5,7 +5,7 @@ Source.cpp is the main program which you should run, and digits.png is the datas
 
 Make sure you have OpenCV installed. I used Visual Studio 2019 and OpenCV 4.2.0.
 
-Maybe my code isn't the most efficient, but that's probably because I went back to make it user friendly.
+Maybe my code isn't the most efficient, and that's partly because I went back to make it user friendly.
 
 -Ethan Zhou
 
