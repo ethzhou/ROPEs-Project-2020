@@ -1,7 +1,7 @@
 # ROPEs-Project-2020 #
 First time using AI/machine learning.
 
-Source.cpp is the main program which you should run, and digits.png is the dataset. In Single Tests there are single test digits made by me. The file deskewtest.cpp was used to debug deskewing images (making the digit upright and not slanted). The rest of the PNG files are images I used to first input and output images using OpenCV.
+Source.cpp is the main program which you should run, and digits.png is the dataset. In Single Tests there are single test digits made by me. The file deskewtest.cpp was used to debug deskewing images (making the digit upright and not slanted). The rest of the PNG files are images I used to first input and output images using OpenCV (or they are just there to look at).
 
 Using the program:
     Make sure you have OpenCV installed and linked with Visual Studio (tutorial here: https://medium.com/@subwaymatch/adding-opencv-4-2-0-to-visual-studio-2019-project-in-windows-using-pre-built-binaries-93a851ed6141). I used Visual Studio 2019 and OpenCV 4.2.0.
