@@ -8,7 +8,6 @@ Using the program:
     I think any color works; it's not limited to black background with white digit.
     Only one digit per image; if you try in give it an image of "25", it will only return one digit which is a blend of the two (maybe 8 in this case?).
     Don't use this program while in a bathtub. If you do, the results may not be accurate.
-    Don't use this program when hunting ducks. If you do, the program may sometimes crash.
 
 
 
